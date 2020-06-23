@@ -43,7 +43,7 @@ cd /workspace/bmark/benchmarks
 python cnn_benchmarks.py
 ```
 
-If MKL-DNN kernels are bign used, the output should look something like below, it shows the MKL-DNN version, 
+If MKL-DNN kernels are bieng used, the output should look something like below, it shows the MKL-DNN version, 
 Instructions available on the hardware and also the optimized kernels being called while running the code.
 
 ```python

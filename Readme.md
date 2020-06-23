@@ -58,15 +58,15 @@ mkldnn_verbose,exec,reorder,jit:uni,undef,in:f32_nChw16c out:f32_nchw,num:1,64x6
 mkldnn_verbose,create,convolution,jit:avx512_common,forward_training,fsrc:nChw16c fwei:OIhw16i16o fbia:x fdst:nChw16c,alg:convolution_direct,mb64_ic64oc192_ih27oh27kh5sh1dh0ph2_iw27ow27kw5sw1dw0pw2,0.419189
 ```
 
-3. Now that we have figured out the platform supports AVX-512 vector instructions and MKL-DNN kernels are being called, let's run the code to benchmark with the process tuner script. The `tuner_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
+3. Now that we have figured out the platform supports AVX-512 vector instructions and MKL-DNN kernels are being called, let's run the code to benchmark with the process tuner script. The `./scripts/tune_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
 
 - single thread
 - single socket
 - All cores
 
 ```bash
-cd /workspace/bmark/scripts
-./tune_shim.sh ../benchmark/cnn_benchmarks.py
+cd /workspace/bmark/
+./scripts/tune_shim.sh ./benchmark/cnn_benchmarks.py
 ```
 
 A sample output while running a workload (`cnn_benchmarks.py`) with the `tune_shim.sh` script is shown below:

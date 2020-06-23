@@ -20,32 +20,31 @@ Instantiate the stacks image, and mount the current directory to the image.
 docker run -v`pwd`:/workspace/bmark/ -it sysstacks/dlrs-pytorch-clearlinux
 ```
 
-Run the code to benchmark  with the tuner, that sets threading paramaters and attempts different values.
+1. First let's check if the platforms supports AVX512 instructions:
 
 ```bash
-cd /workspace/bmark/scripts
-./tune_shim.sh ../benchmark/cnn_benchmarks.py1
+cd /workpsace/bmark/scripts
+./check_platform.sh
 ```
 
-First let's check if the ISA supports AVX512 instructions:
+If the platform has AVX-512 extensions, you will see an output like:
 
 ```bash
-lscpu | grep avx512
+==============================================================================================
+Tue 23 Jun 2020 03:41:42 AM UTC -- [Done]: Success, the platform supports AVX-512 instructions
+==============================================================================================
 ```
 
-```python
-Flags:  fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi
-mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs
-bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx
-est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer
-aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 invpcid_single pti
-ssbd mba ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2
-smep bmi2 erms invpcid rtm cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt
-avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc
-cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req md_clear flush_l1d
+2. Let's check if MKL-DNN accelerated kernels are being used while running Pytorch on the platform you are running:
+
+```bash
+MKLDNN_VERBOSE=1
+cd /workspace/bmark/benchmarks
+python cnn_benchmarks.py
 ```
 
-Let's check if MKL-DNN accelerated kernels are being used while running Pytorch on the platform you are running:
+If MKL-DNN kernels are bign used, the output should look something like below, it shows the MKL-DNN version, 
+Instructions available on the hardware and also the optimized kernels being called while running the code.
 
 ```python
 mkldnn_verbose,info,Intel MKL-DNN v0.21.1 (commit 7d2fd500bc78936d1d648ca713b901012f470dbc)
@@ -59,7 +58,18 @@ mkldnn_verbose,exec,reorder,jit:uni,undef,in:f32_nChw16c out:f32_nchw,num:1,64x6
 mkldnn_verbose,create,convolution,jit:avx512_common,forward_training,fsrc:nChw16c fwei:OIhw16i16o fbia:x fdst:nChw16c,alg:convolution_direct,mb64_ic64oc192_ih27oh27kh5sh1dh0ph2_iw27ow27kw5sw1dw0pw2,0.419189
 ```
 
-Output example
+3. Now that we have figured out the platform supports AVX-512 vector instructions and MKL-DNN kernels are being called, let's run the code to benchmark with the process tuner script. The `tuner_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
+
+- single thread
+- single socket
+- All cores
+
+```bash
+cd /workspace/bmark/scripts
+./tune_shim.sh ../benchmark/cnn_benchmarks.py
+```
+
+A sample output while running a workload (`cnn_benchmarks.py`) with the `tune_shim.sh` script is shown below:
 
 ```bash
 -------------------------------  ---------------  ---------------  ---------------  ---------------  --------------- 
@@ -84,14 +94,19 @@ mkldnn_convolution_backward      5.92%            64.957ms         5.92%        
 Self CPU time total: 1.098s
 CUDA time total: 0.000us
 ```
+This uses Pytorch's bottleneck profiler and gives us information on how much time it takes for each autograd flow, this can be used to figure out which layer is taking the most time and which layers we need to optimize.
 
-## Perf
+4. Perf
 
-Using perf profiler, let's see the top processes while running the benchmark
+Finally let's use the linuxtools perf profiler on the host to see the top processes while running the benchmark
 
 ```bash
 perf top
 ```
+
+An example output of running `perf top` is given below:
+
 ![image](images/perf.png)
 
+As we can see 
 

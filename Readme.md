@@ -94,7 +94,7 @@ mkldnn_convolution_backward      5.92%            64.957ms         5.92%        
 Self CPU time total: 1.098s
 CUDA time total: 0.000us
 ```
-This uses Pytorch's bottleneck profiler and gives us information on how much time it takes for each autograd flow, this can be used to figure out which layer is taking the most time and which layers we need to optimize.
+This uses Pytorch's [bottleneck](https://pytorch.org/docs/stable/bottleneck.html) profiler and gives us information on how much time it takes for each autograd flow, this can be used to figure out which layer is taking the most time and which layers we need to optimize.
 
 4. Perf
 

@@ -108,5 +108,7 @@ An example output of running `perf top` is given below:
 
 ![image](images/perf.png)
 
-As we can see 
+As we can see the most amount of time is used by the omp library, and also we can see, avx512 mkl blas is being used as well.
+
+This was a 101 on how to use basic linux tools and Pytorch inbuilt ones to profile a workload to identify potential bottlenecks.
 

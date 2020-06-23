@@ -60,6 +60,6 @@ Using perf profiler, let's see the top processes while running the benchmark
 ```bash
 perf top
 ```
-[!image]("./images/perf_out.png")
+![image](images/perf.png)
 
 

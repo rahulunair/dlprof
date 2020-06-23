@@ -1,4 +1,4 @@
-## profiling deep learning frameworks.
+## Profiling deep learning frameworks
 
 Examples on how to profile deep learning workloads with Linux tools.
 

@@ -20,7 +20,7 @@ Instantiate the stacks image, and mount the current directory to the image.
 docker run -v`pwd`:/workspace/bmark/ -it sysstacks/dlrs-pytorch-clearlinux
 ```
 
-Run the benchmark with the tuner, that sets threading paramaters and attempts different values.
+Run the code to benchmark  with the tuner, that sets threading paramaters and attempts different values.
 
 ```bash
 cd /workspace/bmark/scripts

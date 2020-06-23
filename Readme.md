@@ -55,11 +55,11 @@ CUDA time total: 0.000us
 
 ## Perf
 
-Using perf profiler, let's see the top processing while running the benchmark
+Using perf profiler, let's see the top processes while running the benchmark
 
 ```bash
 perf top
 ```
-
+[!image]("./images/perf_out.png")
 
 

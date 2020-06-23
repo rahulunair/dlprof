@@ -52,3 +52,14 @@ mkldnn_convolution_backward      5.92%            64.957ms         5.92%        
 Self CPU time total: 1.098s
 CUDA time total: 0.000us
 ```
+
+## Perf
+
+Using perf profiler, let's see the top processing while running the benchmark
+
+```bash
+perf top
+```
+
+
+

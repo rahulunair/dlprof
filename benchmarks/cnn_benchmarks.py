@@ -44,10 +44,10 @@ class BenchMarks:
     """set of convnet benchmarks"""
 
     Model = namedtuple("Model", "name model batch")
-    alexnet = Model(name="alexnet", model=models.alexnet, batch=(64, 224, 224))
-    resnet18 = Model(name="resnet18", model=models.resnet18, batch=(128, 224, 224))
-    resnet50 = Model(name="resnet50", model=models.resnet50, batch=(256, 224, 224))
-    vgg16 = Model(name="vgg16", model=models.vgg16, batch=(256, 224, 224))
+    alexnet = Model(name="alexnet", model=models.alexnet, batch=(32, 224, 224))
+    resnet18 = Model(name="resnet18", model=models.resnet18, batch=(32, 224, 224))
+    resnet50 = Model(name="resnet50", model=models.resnet50, batch=(32, 224, 224))
+    vgg16 = Model(name="vgg16", model=models.vgg16, batch=(32, 224, 224))
     squeezenet = Model(
         name="squeezenet", model=models.squeezenet1_1, batch=(256, 224, 224)
     )
@@ -207,5 +207,5 @@ if __name__ == "__main__":
         exit(1)
     print_config_details()
     bmarks = BenchMarks()
-    models = args.models if args.models else ["alexnet"]
+    models = args.models if args.models else ["resnet18"]
     bmarks.main(models, dry_run=args.dry_run)

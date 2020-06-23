@@ -35,10 +35,10 @@ Tue 23 Jun 2020 03:41:42 AM UTC -- [Done]: Success, the platform supports AVX-51
 ==============================================================================================
 ```
 
-2. Let's check if MKL-DNN accelerated kernels are being used while running Pytorch on the platform you are running:
+2. Let's check if [MKL-DNN](https://oneapi-src.github.io/oneDNN/perf_profile.html) accelerated kernels are being used while running Pytorch on the platform you are running:
 
 ```bash
-MKLDNN_VERBOSE=1
+MKLDNN_VERBOSE=2
 cd /workspace/bmark/benchmarks
 python cnn_benchmarks.py
 ```

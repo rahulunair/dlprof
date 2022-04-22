@@ -45,7 +45,7 @@ done
 
 if [ "$flag" == "1" ]; then
   flag=0
-  run "[Done]: Success, the platform supports AMX(bf16, int8) instructions"
+  run "[Done]: Success, the platform supports AVX-512 VNNI (int8) instructions"
 fi 
 
 flag=0
@@ -54,7 +54,7 @@ for i in "${reqd_xtns[@]}"
   do 
     if [[ ! $cpuxtns =~ $i ]]
       then 
-        run "[Error] : Intel® AMX(bf16, int8, tile) extensions are not available :: ($i)"
+        run "[Error] : Intel® AMX(bf16, int8) extensions are not available :: ($i)"
       else
         flag=1
     fi

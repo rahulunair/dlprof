@@ -1,10 +1,10 @@
 ## Profiling deep learning frameworks
 
-Examples on how to profile deep learning workloads with Linux tools.
+Examples on how to profile deep learning workloads with Linux tools. In this scenario we are checking if AVX512 is available and also uses Pytorch bottlneck profiler to profile a workload.
 
 ### Pytorch
 
-Pull a docker image with Pytorch
+<!-- Pull a docker image with Pytorch
 
 - Stacks Pytorch image
 
@@ -19,11 +19,24 @@ Instantiate the stacks image, and mount the current directory to the image.
 ```bash
 docker run -v`pwd`:/workspace/bmark/ -it sysstacks/dlrs-pytorch-clearlinux
 ```
+-->
 
-1. First let's check if the platforms supports AVX512 instructions:
+### Install pytorch and utilities
 
 ```bash
-cd /workpsace/bmark/scripts
+conda create --name pytorch-intel python==3.9
+conda activate pytorch-intel
+conda install -c intel pytorch
+conda install -c intel torchvision
+conda install -c intel intel-extension-for-pytorch
+git clone https://github.com/rahulunair/dlprof
+cd dlprof
+```
+
+1. First let's check if the platforms supports AVX512:
+
+```bash
+cd scripts
 ./check_platform.sh
 ```
 
@@ -33,32 +46,39 @@ If the platform has AVX-512 extensions, you will see an output like:
 ==============================================================================================
 Tue 23 Jun 2020 03:41:42 AM UTC -- [Done]: Success, the platform supports AVX-512 instructions
 ==============================================================================================
+cd ..
 ```
 
-2. Let's check if [MKL-DNN](https://oneapi-src.github.io/oneDNN/perf_profile.html) accelerated kernels are being used while running Pytorch on the platform you are running:
+2. Let's check if [OneDNN](https://oneapi-src.github.io/oneDNN/dev_guide_verbose.html) accelerated kernels are being used while running Pytorch on the platform you are running:
 
 ```bash
-MKLDNN_VERBOSE=2
-cd /workspace/bmark/benchmarks
+export ONEDNN_VERBOSE=2   # enable verbose mode for oneDNN, same as MKLDNN_VERBOSE=2 
+cd benchmarks
 python cnn_benchmarks.py
 ```
 
-If MKL-DNN kernels are bieng used, the output should look something like below, it shows the MKL-DNN version, 
+If OneDNN kernels are bieng used, the output should look something like below, it shows the oneDNNDNN version, 
 Instructions available on the hardware and also the optimized kernels being called while running the code.
 
 ```python
-mkldnn_verbose,info,Intel MKL-DNN v0.21.1 (commit 7d2fd500bc78936d1d648ca713b901012f470dbc)
-mkldnn_verbose,info,Detected ISA is Intel AVX-512 with AVX512BW, AVX512VL, and AVX512DQ extensions
-mkldnn_verbose,create,convolution,jit:avx512_common,forward_training,fsrc:nchw fwei:Ohwi16o fbia:x fdst:nChw16c,alg:convolution_direct,mb64_ic3oc64_ih224oh55kh11sh4dh0ph2_iw224ow55kw11sw4dw0pw2,0.24707
-mkldnn_verbose,create,reorder,jit:uni,undef,in:f32_oihw out:f32_Ohwi16o,num:1,64x3x11x11,0.0249023
-mkldnn_verbose,exec,reorder,jit:uni,undef,in:f32_oihw out:f32_Ohwi16o,num:1,64x3x11x11,0.432129
-mkldnn_verbose,exec,convolution,jit:avx512_common,forward_training,fsrc:nchw fwei:Ohwi16o fbia:x fdst:nChw16c,alg:convolution_direct,mb64_ic3oc64_ih224oh55kh11sh4dh0ph2_iw224ow55kw11sw4dw0pw2,15.6321
-mkldnn_verbose,create,reorder,jit:uni,undef,in:f32_nChw16c out:f32_nchw,num:1,64x64x55x55,0.0539551
-mkldnn_verbose,exec,reorder,jit:uni,undef,in:f32_nChw16c out:f32_nchw,num:1,64x64x55x55,4.82983
-mkldnn_verbose,create,convolution,jit:avx512_common,forward_training,fsrc:nChw16c fwei:OIhw16i16o fbia:x fdst:nChw16c,alg:convolution_direct,mb64_ic64oc192_ih27oh27kh5sh1dh0ph2_iw27ow27kw5sw1dw0pw2,0.419189
+dnnl_verbose,info,oneDNN v1.7.0 (commit 7aed236906b1f7a05c0917e5257a1af05e9ff683)
+dnnl_verbose,info,cpu,runtime:OpenMP
+dnnl_verbose,info,cpu,isa:Intel AVX-512 with AVX512BW, AVX512VL, and AVX512DQ extensions
+dnnl_verbose,info,gpu,runtime:none
+dnnl_verbose,create:cache_miss,cpu,reorder,jit:uni,undef,src_f32::blocked:abcd:f0 dst_f32::blocked:Acdb16a:f0,,,64x3x7x7,0.214111
+dnnl_verbose,exec,cpu,reorder,jit:uni,undef,src_f32::blocked:abcd:f0 dst_f32::blocked:Acdb16a:f0,,,64x3x7x7,0.1521
+dnnl_verbose,create:cache_miss,cpu,convolution,jit:avx512_common,forward_training,src_f32::blocked:abcd:f0 wei_f32::blocked:Acdb16a:f0 bia_undef::undef::f0 dst_f32::blocked:aBcd16b:f0,scratchpad_mode:user;,alg:convolution_direct,mb32_ic3oc64_ih224oh112kh7sh2dh0ph3_iw224ow112kw7sw2dw0pw3,0.25
+dnnl_verbose,exec,cpu,convolution,jit:avx512_common,forward_training,src_f32::blocked:abcd:f0 wei_f32::blocked:Acdb16a:f0 bia_undef::undef::f0 dst_f32::blocked:aBcd16b:f0,scratchpad_mode:user;,alg:convolution_direct,mb32_ic3oc64_ih224oh112kh7sh2dh0ph3_iw224ow112kw7sw2dw0pw3,28.7791
+dnnl_verbose,create:cache_miss,cpu,reorder,jit:blk,undef,src_f32::blocked:aBcd16b:f0 dst_f32::blocked:abcd:f0,,,32x64x112x112,0.0529785
+dnnl_verbose,exec,cpu,reorder,jit:blk,undef,src_f32::blocked:aBcd16b:f0 dst_f32::blocked:abcd:f0,,,32x64x112x112,10.345
+dnnl_verbose,create:cache_miss,cpu,reorder,jit:blk,undef,src_f32::blocked:abcd:f0 dst_f32::blocked:aBcd16b:f0,,,32x64x56x56,0.0471191
+dnnl_verbose,exec,cpu,reorder,jit:blk,undef,src_f32::blocked:abcd:f0 dst_f32::blocked:aBcd16b:f0,,,32x64x56x56,2.69409
+dnnl_verbose,create:cache_miss,cpu,reorder,jit:uni,undef,src_f32::blocked:abcd:f0 dst_f32::blocked:ABcd16b16a:f0,,,64x64x3x3,0.0710449
+dnnl_verbose,exec,cpu,reorder,jit:uni,undef,src_f32::blocked:abcd:f0 dst_f32::blocked:ABcd16b16a:f0,,,64x64x3x3,0.0290527
+dnnl_verbose,create:cache_miss,cpu,convolution,jit:avx512_common,forward_training,src_f32::blocked:aBcd16b:f0 wei_f32::blocked:ABcd16b16a:f0
 ```
 
-3. Now that we have figured out the platform supports AVX-512 vector instructions and MKL-DNN kernels are being called, let's run the code to benchmark with the process tuner script. The `./scripts/tune_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
+3. Now that we have figured out the platform supports AVX-512 vector instructions and oneDNN kernels are being called, let's run the code to benchmark with the process tuner script. The `./scripts/tune_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
 
 - single thread
 - single socket
@@ -92,7 +112,6 @@ MkldnnConvolutionBackward        5.92%            64.977ms         5.92%        
 mkldnn_convolution_backward      5.92%            64.957ms         5.92%            64.957ms         64.957ms        
 -------------------------------  ---------------  ---------------  ---------------  ---------------  --------------- 
 Self CPU time total: 1.098s
-CUDA time total: 0.000us
 ```
 This uses Pytorch's [bottleneck](https://pytorch.org/docs/stable/bottleneck.html) profiler and gives us information on how much time it takes for each autograd flow, this can be used to figure out which layer is taking the most time and which layers we need to optimize.
 

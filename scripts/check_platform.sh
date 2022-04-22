@@ -16,7 +16,7 @@ for i in "${reqd_xtns[@]}"
   do 
     if [[ ! $cpuxtns =~ $i ]]
       then 
-        run "[Error] : Intel® AVX-512 extensions required by DLRS not available :: ($i)"
+        run "[Error] : Intel® AVX-512 extensions are not available :: ($i)"
         exit
     fi
   done

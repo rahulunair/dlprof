@@ -1,6 +1,6 @@
 ## Profiling deep learning frameworks
 
-Examples on how to profile deep learning workloads with Linux tools. In this scenario we are checking if AVX512 is available and also uses Pytorch bottlneck profiler to profile a workload.
+Examples on how to profile deep learning workloads with Linux tools. In this scenario we are checking if Intel vector instructions are available on the platform you are running the workload, if oneDNN, MKL is being used and also we use the Pytorch bottlneck profiler to profile a workload.
 
 ### Pytorch
 
@@ -37,15 +37,22 @@ cd dlprof
 
 ```bash
 cd scripts
+chmod +x check_platform.sh
 ./check_platform.sh
 ```
 
 If the platform has AVX-512 extensions, you will see an output like:
 
 ```bash
-==============================================================================================
-Tue 23 Jun 2020 03:41:42 AM UTC -- [Done]: Success, the platform supports AVX-512 instructions
-==============================================================================================
+=====================================================================================================
+Wed 23 Jun 2021 03:41:42 AM UTC -- [Done]: Success, the platform supports AVX-512 (fp32) instructions
+=====================================================================================================
+=====================================================================================================================
+Wed 23 Jun 2021 03:41:42 AM UTC -- [Error] : Intel® AVX-512 VNNI (int8) extensions are not available :: (avx512_vnni)
+=====================================================================================================================
+====================================================================================================================
+Wed 23 Jun 2021 03:41:42 AM UTC -- [Error] : Intel® AMX (bf16, int8) extensions are not available :: (amx_tile)
+====================================================================================================================
 cd ..
 ```
 
@@ -57,8 +64,7 @@ cd benchmarks
 python cnn_benchmarks.py
 ```
 
-If OneDNN kernels are bieng used, the output should look something like below, it shows the oneDNNDNN version, 
-Instructions available on the hardware and also the optimized kernels being called while running the code.
+If OneDNN kernels are bieng used, the output should look something like below, it shows the oneDNN version, instructions available on the hardware and also the optimized kernels being called while running the code.
 
 ```python
 dnnl_verbose,info,oneDNN v1.7.0 (commit 7aed236906b1f7a05c0917e5257a1af05e9ff683)
@@ -78,7 +84,7 @@ dnnl_verbose,exec,cpu,reorder,jit:uni,undef,src_f32::blocked:abcd:f0 dst_f32::bl
 dnnl_verbose,create:cache_miss,cpu,convolution,jit:avx512_common,forward_training,src_f32::blocked:aBcd16b:f0 wei_f32::blocked:ABcd16b16a:f0
 ```
 
-3. Now that we have figured out the platform supports AVX-512 vector instructions and oneDNN kernels are being called, let's run the code to benchmark with the process tuner script. The `./scripts/tune_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
+3. Now that we have figured out the platform supports vector instructions(AVX512) and oneDNN kernels are being called, let's run the code to benchmark with the process tuner script. The `./scripts/tune_shim.sh` script sets number of threads openMP can use and also set the block time of the threads. The script goes through three different combinations
 
 - single thread
 - single socket

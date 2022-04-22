@@ -15,44 +15,51 @@ run()
 
 cpuxtns=$(lscpu | grep -i "avx512")
 
-run "[init]: checking if AVX512(FP32) instructions are available"
+flag=0
 reqd_xtns=(avx512cd avx512bw avx512dq avx512f avx512vl)
-
 for i in "${reqd_xtns[@]}"
   do 
     if [[ ! $cpuxtns =~ $i ]]
       then 
-        run "[Error] : Intel® AVX-512 extensions are not available :: ($i)"
-        exit
+        run "[Error] : Intel® AVX-512 extensions(fp32) are not available :: ($i)"
       else
-        run "[Done]: Success, the platform supports AVX-512 instructions"
+        flag=1
     fi
 done
 
-run "[init]: checking if AVX-512 VNNI( int8) instructions are available"
-reqd_xtns=(avx512cd avx512bw avx512dq avx512f avx512vl)
+if [ "$flag" == "1" ]; then
+   run "[Done]: Success, the platform supports AVX-512(fp32) instructions"
+fi
 
+flag=0
+reqd_xtns=(avx512_vnni)
 for i in "${reqd_xtns[@]}"
   do 
     if [[ ! $cpuxtns =~ $i ]]
       then 
-        run "[Error] : Intel® AVX-512 VNNI( int8) extensions are not available :: ($i)"
-        exit
+        run "[Error] : Intel® AVX-512 VNNI (int8) extensions are not available :: ($i)"
       else
-        run "[Done]: Success, the platform supports AVX-512 VNNI( int8) instructions"
-    fi
-  done
+        flag=1
+      fi
+done
 
-run "[init]: checking if AMX(bf16, int8) instructions are available"
+if [ "$flag" == "1" ]; then
+  flag=0
+  run "[Done]: Success, the platform supports AMX(bf16, int8) instructions"
+fi 
+
+flag=0
 reqd_xtns=(amx_tile)
-
 for i in "${reqd_xtns[@]}"
   do 
     if [[ ! $cpuxtns =~ $i ]]
       then 
-        run "[Error] : Intel® AMX(bf16, int8) extensions are not available :: ($i)"
-        exit
+        run "[Error] : Intel® AMX(bf16, int8, tile) extensions are not available :: ($i)"
       else
-        run "[Done]: Success, the platform supports AMX(bf16, int8) instructions"
+        flag=1
     fi
-  done
+done
+
+if [ "$flag" == "1" ]; then
+   run "[Done]: Success, the platform supports AMX(bf16, int8) instructions"
+fi

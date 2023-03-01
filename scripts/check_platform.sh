@@ -16,19 +16,19 @@ run()
 cpuxtns=$(lscpu | grep -i "avx512")
 
 flag=0
-reqd_xtns=(avx512cd avx512bw avx512dq avx512f avx512vl)
+reqd_xtns=(avx512cd avx512bw avx512dq avx512f avx512vl amx_tile amx_bf16 amx_int8)
 for i in "${reqd_xtns[@]}"
   do 
     if [[ ! $cpuxtns =~ $i ]]
       then 
-        run "[Error] : Intel® AVX-512 extensions(fp32) are not available :: ($i)"
+        run "[Error] : Intel® AVX-512 extensions(fp32), AMX are not available :: ($i)"
       else
         flag=1
     fi
 done
 
 if [ "$flag" == "1" ]; then
-   run "[Done]: Success, the platform supports AVX-512(fp32) instructions"
+   run "[Done]: Success, the platform supports AVX-512(fp32), AMX instructions"
 fi
 
 flag=0

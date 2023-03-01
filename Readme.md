@@ -24,11 +24,18 @@ docker run -v`pwd`:/workspace/bmark/ -it sysstacks/dlrs-pytorch-clearlinux
 ### Install pytorch and utilities
 
 ```bash
+# if you are using conda
 conda create --name pytorch-intel python==3.9
 conda activate pytorch-intel
 conda install -c intel pytorch
 conda install -c intel torchvision
 conda install -c intel intel-extension-for-pytorch
+
+# if you are using pip or pip3
+python -m venv pytorch-intel && source ./pytorch-intel/bin/activate
+pip3 install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
+pip install intel_extension_for_pytorch
+
 git clone https://github.com/rahulunair/dlprof
 cd dlprof
 ```
@@ -59,7 +66,7 @@ cd ..
 2. Let's check if [OneDNN](https://oneapi-src.github.io/oneDNN/dev_guide_verbose.html) accelerated kernels are being used while running Pytorch on the platform you are running:
 
 ```bash
-export ONEDNN_VERBOSE=2   # enable verbose mode for oneDNN, same as MKLDNN_VERBOSE=2 
+export ONEDNN_VERBOSE=2   # enable verbose mode for oneDNN, same as DNNL_VERBOSE=2 you can try IPEX_VERBOSE=1 as well
 cd benchmarks
 python cnn_benchmarks.py
 ```

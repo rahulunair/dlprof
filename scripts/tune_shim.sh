@@ -7,7 +7,7 @@ HALF_CORES=$(expr $CORES \/ 2)
 HLAST_CORE=$(expr $HALF_CORES - 1)
 LAST_CORE=$(expr $CORES - 1)
 NUMA="numactl --physcpubind=0-$LAST_CORE --membind=0"
-KMP_BLOCKTIME=0
+KMP_BLOCKTIME=0  # 1 , you can tune this as well, the number is the thread idle time before sleep in ms.
 INPUT_FILE=$1
 
 export "KMP_AFFINITY=granularity=fine,compact,1,0"
